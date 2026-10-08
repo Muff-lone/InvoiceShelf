@@ -15,6 +15,13 @@ interface CompanyFormData {
   logo: string | null
   tax_id: string | null
   vat_id: string | null
+  bank_name: string | null
+  bank_account_holder: string | null
+  bank_iban: string | null
+  bank_bic: string | null
+  bank_account_prefix: string | null
+  bank_account_number: string | null
+  bank_code: string | null
   address: {
     address_street_1: string
     address_street_2: string
@@ -43,6 +50,13 @@ const companyForm = reactive<CompanyFormData>({
   logo: companyStore.selectedCompany?.logo ?? null,
   tax_id: companyStore.selectedCompany?.tax_id ?? null,
   vat_id: companyStore.selectedCompany?.vat_id ?? null,
+  bank_name: (companyStore.selectedCompany as any)?.bank_name ?? null,
+  bank_account_holder: (companyStore.selectedCompany as any)?.bank_account_holder ?? null,
+  bank_iban: (companyStore.selectedCompany as any)?.bank_iban ?? null,
+  bank_bic: (companyStore.selectedCompany as any)?.bank_bic ?? null,
+  bank_account_prefix: (companyStore.selectedCompany as any)?.bank_account_prefix ?? null,
+  bank_account_number: (companyStore.selectedCompany as any)?.bank_account_number ?? null,
+  bank_code: (companyStore.selectedCompany as any)?.bank_code ?? null,
   address: {
     address_street_1: (companyStore.selectedCompany?.address as Record<string, string>)?.address_street_1 ?? '',
     address_street_2: (companyStore.selectedCompany?.address as Record<string, string>)?.address_street_2 ?? '',
@@ -125,6 +139,13 @@ async function updateCompanyData(): Promise<void> {
     name: companyForm.name ?? '',
     tax_id: companyForm.tax_id,
     vat_id: companyForm.vat_id,
+    bank_name: companyForm.bank_name,
+    bank_account_holder: companyForm.bank_account_holder,
+    bank_iban: companyForm.bank_iban,
+    bank_bic: companyForm.bank_bic,
+    bank_account_prefix: companyForm.bank_account_prefix,
+    bank_account_number: companyForm.bank_account_number,
+    bank_code: companyForm.bank_code,
     address: companyForm.address,
     customFields: customFieldHolder.company.customFields,
   })
@@ -239,6 +260,42 @@ async function updateCompanyData(): Promise<void> {
           </BaseInputGroup>
           <BaseInputGroup :label="$t('settings.company_info.vat_id')">
             <BaseInput v-model="companyForm.vat_id" type="text" />
+          </BaseInputGroup>
+        </div>
+
+        <BaseDivider class="mt-8 mb-4" />
+
+        <h3 class="text-lg font-medium text-heading mb-4">
+          {{ $t('settings.company_info.payment_details') }}
+        </h3>
+
+        <div class="space-y-6">
+          <BaseInputGroup label="Bank Name">
+            <BaseInput v-model="companyForm.bank_name" type="text" />
+          </BaseInputGroup>
+          <BaseInputGroup label="Account Holder">
+            <BaseInput v-model="companyForm.bank_account_holder" type="text" />
+          </BaseInputGroup>
+        </div>
+
+        <div class="space-y-6">
+          <BaseInputGroup label="IBAN">
+            <BaseInput v-model="companyForm.bank_iban" type="text" />
+          </BaseInputGroup>
+          <BaseInputGroup label="BIC / SWIFT">
+            <BaseInput v-model="companyForm.bank_bic" type="text" />
+          </BaseInputGroup>
+        </div>
+
+        <div class="space-y-6">
+          <BaseInputGroup label="Account Prefix">
+            <BaseInput v-model="companyForm.bank_account_prefix" type="text" />
+          </BaseInputGroup>
+          <BaseInputGroup label="Account Number">
+            <BaseInput v-model="companyForm.bank_account_number" type="text" />
+          </BaseInputGroup>
+          <BaseInputGroup label="Bank Code">
+            <BaseInput v-model="companyForm.bank_code" type="text" />
           </BaseInputGroup>
         </div>
 

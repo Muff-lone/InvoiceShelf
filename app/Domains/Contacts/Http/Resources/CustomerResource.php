@@ -51,6 +51,7 @@ class CustomerResource extends JsonResource
             'account_balance' => $this->account_balance,
             'base_account_balance' => $this->base_account_balance,
             'prefix' => $this->prefix,
+            'ico' => $this->ico,
             'tax_id' => $this->tax_id,
             'billing' => $this->when(
                 $this->billingAddress()->exists(),

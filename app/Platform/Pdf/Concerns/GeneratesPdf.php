@@ -210,6 +210,7 @@ trait GeneratesPdf
         // The tax id token carries its own label, so a template printing it
         // does not have to translate one.
         $fields['{CONTACT_TAX_ID}'] = __('pdf_tax_id').': '.$customer->tax_id;
+        $fields['{CONTACT_ICO}'] = __('pdf_ico').': '.$customer->ico;
 
         foreach ([$this->fields, $customer->fields] as $answers) {
             foreach ($answers as $answer) {

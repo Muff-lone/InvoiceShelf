@@ -326,6 +326,7 @@
   "customers": {
     "title": "Customers",
     "prefix": "Prefix",
+    "ico": "IČO",
     "tax_id": "Tax ID",
     "add_customer": "Add Customer",
     "contacts_list": "Customer List",
@@ -1411,6 +1412,7 @@
     },
     "company_info": {
       "company_info": "Company info",
+      "payment_details": "Payment Details",
       "company_name": "Company Name",
       "tax_id": "Tax Identification Number",
       "vat_id": "VAT Identification Number",
@@ -2329,6 +2331,7 @@
   "pdf_net_total": "Net",
   "pdf_total": "Total",
   "pdf_payment_label": "Payment",
+  "pdf_payment_details": "Payment Details",
   "pdf_payment_receipt_label": "PAYMENT RECEIPT",
   "pdf_payment_date": "Payment Date",
   "pdf_payment_number": "Payment Number",
@@ -2369,6 +2372,7 @@
   "pdf_received_from": "Received from:",
   "pdf_tax_label": "Tax",
   "pdf_tax_id": "Tax-ID",
+  "pdf_ico": "IČO",
   "pdf_vat_id": "VAT-ID",
   "pdf_amount_credited": "Amount Credited",
   "pdf_amount_paid": "Amount Paid",

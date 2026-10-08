@@ -311,6 +311,18 @@ async function submitCustomerData(): Promise<void> {
                 @input="v$.currentCustomer.prefix.$touch()"
               />
             </BaseInputGroup>
+            
+            <BaseInputGroup
+              :label="$t('customers.ico')"
+              :content-loading="isFetchingInitialData"
+            >
+              <BaseInput
+                v-model="customerStore.currentCustomer.ico"
+                :content-loading="isFetchingInitialData"
+                type="text"
+                name="ico"
+              />
+            </BaseInputGroup>
 
             <BaseInputGroup
               :label="$t('customers.tax_id')"

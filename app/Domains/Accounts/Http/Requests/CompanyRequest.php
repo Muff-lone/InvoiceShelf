@@ -26,6 +26,13 @@ class CompanyRequest extends FormRequest
         'name',
         'vat_id',
         'tax_id',
+        'bank_name',
+        'bank_account_holder',
+        'bank_iban',
+        'bank_bic',
+        'bank_account_prefix',
+        'bank_account_number',
+        'bank_code',
     ];
 
     /**
@@ -56,6 +63,13 @@ class CompanyRequest extends FormRequest
             'tax_id' => [
                 'nullable',
             ],
+            'bank_name' => ['nullable'],
+            'bank_account_holder' => ['nullable'],
+            'bank_iban' => ['nullable'],
+            'bank_bic' => ['nullable'],
+            'bank_account_prefix' => ['nullable'],
+            'bank_account_number' => ['nullable'],
+            'bank_code' => ['nullable'],
             'address.country_id' => [
                 'required',
             ],

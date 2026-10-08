@@ -35,6 +35,7 @@ export interface Customer {
   available_credit?: number | null
   account_balance?: number | null
   prefix: string | null
+  ico: string | null
   tax_id: string | null
   billing?: Address
   shipping?: Address

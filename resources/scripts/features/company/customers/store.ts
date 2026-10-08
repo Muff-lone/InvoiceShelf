@@ -39,6 +39,7 @@ export interface CustomerForm {
   currency_id: number | null
   website: string | null
   prefix?: string | null
+  ico?: string | null
   tax_id?: string | null
   billing: CustomerFormAddress
   shipping: CustomerFormAddress

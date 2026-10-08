@@ -35,6 +35,7 @@ class CustomerRequest extends FormRequest
         'password',
         'phone',
         'prefix',
+        'ico',
         'tax_id',
         'company_name',
         'contact_name',
@@ -53,6 +54,7 @@ class CustomerRequest extends FormRequest
         'contact_name',
         'website',
         'prefix',
+        'ico',
         'tax_id',
     ];
 

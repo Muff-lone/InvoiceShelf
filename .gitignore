@@ -48,3 +48,6 @@ yarn.lock
 # Browser-verification scratch: playwright-cli writes snapshots, screenshots
 # and console logs next to wherever it was invoked.
 /.playwright-cli/
+
+# Node/pnpm cache
+/.pnpm-store/

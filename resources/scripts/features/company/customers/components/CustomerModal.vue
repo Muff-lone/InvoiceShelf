@@ -318,6 +318,14 @@ function closeCustomerModal(): void {
                 </BaseInputGroup>
               </BaseInputGrid>
 
+              <BaseInputGroup :label="$t('customers.ico')">
+                <BaseInput
+                  v-model="customerStore.currentCustomer.ico"
+                  type="text"
+                  class="mt-1 md:mt-0"
+                />
+              </BaseInputGroup>
+
               <BaseInputGroup :label="$t('customers.tax_id')">
                 <BaseInput
                   v-model="customerStore.currentCustomer.tax_id"

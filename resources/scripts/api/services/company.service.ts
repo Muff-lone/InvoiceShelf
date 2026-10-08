@@ -8,6 +8,13 @@ export interface UpdateCompanyPayload {
   name: string
   vat_id?: string | null
   tax_id?: string | null
+  bank_name?: string | null
+  bank_account_holder?: string | null
+  bank_iban?: string | null
+  bank_bic?: string | null
+  bank_account_prefix?: string | null
+  bank_account_number?: string | null
+  bank_code?: string | null
   phone?: string | null
   address?: {
     address_street_1?: string | null
