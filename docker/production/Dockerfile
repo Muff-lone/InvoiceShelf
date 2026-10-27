@@ -64,12 +64,12 @@ FROM base AS production
         composer install --prefer-dist --no-dev --optimize-autoloader
 
     # Copy entrypoint and inject script, and make sure they are executable
-    COPY --chmod=755 docker/production/inject.sh /inject.sh
-    COPY --chmod=755 docker/production/entrypoint.d/ /etc/entrypoint.d/
+    COPY --chown=www-data:www-data --chmod=755 docker/production/inject.sh /inject.sh
+    COPY --chown=www-data:www-data --chmod=755 docker/production/entrypoint.d/ /etc/entrypoint.d/
 
     # Supervise Laravel's scheduler next to nginx and php-fpm. The base image
     # starts neither a cron daemon nor a scheduler, so without this service
     # nothing in routes/console.php ever runs: no recurring invoices, no
     # overdue flagging, no estimate expiry. Set SCHEDULER_ENABLED=false to run
     # the schedule from somewhere else instead.
-    COPY --chmod=755 docker/production/s6-overlay/ /etc/s6-overlay/
+    COPY --chown=www-data:www-data --chmod=755 docker/production/s6-overlay/ /etc/s6-overlay/
