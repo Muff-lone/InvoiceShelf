@@ -1,0 +1,578 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <title>Invoice - INV-000001</title>
+    <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
+<style type="text/css">
+    @font-face {
+                font-family: 'NotoSans';
+                font-style: normal;
+                font-weight: normal;
+                src: url("/var/www/html/resources/static/fonts/NotoSans-Regular.ttf") format('truetype');
+            }
+@font-face {
+                font-family: 'NotoSans';
+                font-style: normal;
+                font-weight: bold;
+                src: url("/var/www/html/resources/static/fonts/NotoSans-Bold.ttf") format('truetype');
+            }
+@font-face {
+                font-family: 'NotoSans';
+                font-style: italic;
+                font-weight: normal;
+                src: url("/var/www/html/resources/static/fonts/NotoSans-Italic.ttf") format('truetype');
+            }
+@font-face {
+                font-family: 'NotoSans';
+                font-style: italic;
+                font-weight: bold;
+                src: url("/var/www/html/resources/static/fonts/NotoSans-BoldItalic.ttf") format('truetype');
+            }
+
+    body {
+        font-family: "NotoSans", "NotoSans", "DejaVu Sans", sans-serif;
+    }
+</style>
+
+    <style type="text/css">
+        @page {
+            margin: 0px;
+        }
+
+        body {
+            margin: 0px;
+            padding: 0px;
+            font-size: 13px;
+            color: #111111;
+            line-height: 1.4;
+        }
+
+        table {
+            border-collapse: collapse;
+        }
+
+        /* -- Header -- */
+        .header-table {
+            width: 100%;
+            margin-bottom: 0px;
+        }
+
+        .header-logo-cell {
+            padding: 25px 25px 0 35px;
+            vertical-align: top;
+        }
+
+        .header-title-cell {
+            background: #0074D9;
+            color: #FFFFFF;
+            padding: 16px 30px;
+            vertical-align: top;
+            text-align: left;
+        }
+
+        .invoice-title {
+            font-size: 22px;
+            font-weight: bold;
+            line-height: 28px;
+            color: #FFFFFF;
+        }
+
+        .invoice-subtitle {
+            font-size: 13px;
+            margin-top: 3px;
+            color: #FFFFFF;
+            opacity: 0.95;
+        }
+
+        /* -- Address Section -- */
+        .address-table {
+            width: 100%;
+            margin-top: 20px;
+        }
+
+        .supplier-cell {
+            padding-left: 35px;
+            padding-right: 25px;
+            border-right: 1px solid #E4E5E4;
+            vertical-align: top;
+        }
+
+        .customer-cell {
+            padding-left: 25px;
+            padding-right: 35px;
+            vertical-align: top;
+        }
+
+        .section-label {
+            font-size: 11px;
+            font-weight: bold;
+            color: #5E5E5E;
+            letter-spacing: 0.5px;
+            text-transform: uppercase;
+            margin-bottom: 6px;
+        }
+
+        .party-name {
+            font-size: 15px;
+            font-weight: bold;
+            color: #000000;
+            margin-bottom: 3px;
+        }
+
+        .party-address {
+            font-size: 13px;
+            line-height: 19px;
+            color: #111111;
+        }
+
+        .id-table {
+            width: 100%;
+            margin-top: 15px;
+        }
+
+        .id-label {
+            font-size: 13px;
+            color: #5E5E5E;
+            width: 50px;
+            padding: 2px 0;
+            text-align: left;
+        }
+
+        .id-value {
+            font-size: 13px;
+            color: #000000;
+            padding: 2px 0;
+            text-align: right;
+        }
+
+        /* -- Middle Boxes -- */
+        .middle-boxes-table {
+            width: 100%;
+            margin-top: 25px;
+        }
+
+        .payment-box {
+            background: #0074D9;
+            color: #FFFFFF;
+            padding: 14px 25px 14px 35px;
+            vertical-align: top;
+        }
+
+        .dates-box {
+            background: #F1F1F1;
+            color: #111111;
+            padding: 14px 35px 14px 25px;
+            vertical-align: top;
+        }
+
+        .box-label-white {
+            font-size: 13px;
+            color: #FFFFFF;
+            padding: 3px 0;
+            text-align: left;
+        }
+
+        .box-value-white-bold {
+            font-size: 13px;
+            font-weight: bold;
+            color: #FFFFFF;
+            padding: 3px 0;
+            text-align: right;
+        }
+
+        .box-value-white {
+            font-size: 13px;
+            color: #FFFFFF;
+            padding: 3px 0;
+            text-align: right;
+        }
+
+        .box-label-gray {
+            font-size: 13px;
+            color: #5E5E5E;
+            padding: 3px 0;
+            text-align: left;
+        }
+
+        .box-value-gray-bold {
+            font-size: 13px;
+            font-weight: bold;
+            color: #111111;
+            padding: 3px 0;
+            text-align: right;
+        }
+
+        .box-value-gray {
+            font-size: 13px;
+            color: #111111;
+            padding: 3px 0;
+            text-align: right;
+        }
+
+        /* -- Intro Line -- */
+        .intro-heading {
+            padding: 25px 35px 10px 35px;
+            font-size: 13px;
+            color: #5E5E5E;
+        }
+
+        /* -- Items Table -- */
+        .items-table-wrapper {
+            width: 100%;
+        }
+
+        .items-table-inset {
+            padding-left: 35px;
+            padding-right: 35px;
+        }
+
+        .items-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        tr.item-table-heading-row th {
+            border-bottom: 1px solid #CCCCCC;
+            font-size: 11px;
+            font-weight: bold;
+            color: #5E5E5E;
+            text-transform: uppercase;
+            padding: 8px 10px;
+            line-height: 16px;
+        }
+
+        tr.item-row td {
+            border-bottom: 1px solid #E8E8E8;
+            font-size: 13px;
+            line-height: 18px;
+            padding: 10px;
+        }
+
+        .item-name {
+            font-size: 13px;
+            color: #000000;
+            display: block;
+        }
+
+        .item-description {
+            color: #5E5E5E;
+            font-size: 11px;
+            line-height: 14px;
+            display: block;
+            margin-top: 3px;
+        }
+
+        .item-cell-total {
+            background: #F1F1F1 !important;
+            font-weight: 500;
+        }
+
+        /* -- Bottom Section -- */
+        .bottom-section {
+            width: 100%;
+            page-break-inside: avoid;
+        }
+
+        .qr-code-box {
+            border: 1px solid #CCCCCC;
+            padding: 6px;
+            width: 130px;
+            text-align: center;
+            background: #FFFFFF;
+        }
+
+        .qr-code-label {
+            font-size: 10px;
+            color: #777777;
+            font-weight: bold;
+            text-transform: uppercase;
+            margin-top: 5px;
+            letter-spacing: 0.5px;
+        }
+
+        .notes-container {
+            margin-top: 15px;
+            max-width: 320px;
+            font-size: 11px;
+            color: #5E5E5E;
+        }
+
+        .notes-label {
+            font-weight: bold;
+            margin-bottom: 3px;
+            color: #111111;
+        }
+
+        .notes-body {
+            line-height: 16px;
+        }
+
+        .tax-summary-table {
+            width: 100%;
+            border-collapse: collapse;
+        }
+
+        .tax-head-row th {
+            font-size: 11px;
+            font-weight: bold;
+            color: #5E5E5E;
+            text-transform: uppercase;
+            padding: 6px 10px;
+        }
+
+        .tax-data-row td {
+            font-size: 13px;
+            color: #111111;
+            padding: 6px 10px;
+        }
+
+        .tax-accent-line {
+            height: 2px;
+            background: #0074D9;
+            margin-top: 2px;
+            margin-bottom: 10px;
+        }
+
+        .grand-total-amount {
+            text-align: right;
+            font-size: 26px;
+            font-weight: bold;
+            color: #0074D9;
+            padding-right: 10px;
+            margin-top: 6px;
+        }
+
+        .payment-summary-block {
+            text-align: right;
+            font-size: 12px;
+            color: #5E5E5E;
+            margin-top: 8px;
+            padding-right: 10px;
+        }
+
+        .amount-due-line {
+            font-weight: bold;
+            color: #0074D9;
+            margin-top: 3px;
+        }
+
+        .signature-block {
+            text-align: right;
+            margin-top: 35px;
+            padding-right: 10px;
+        }
+
+        .signature-line {
+            display: inline-block;
+            width: 170px;
+            border-top: 1px solid #CCCCCC;
+            padding-top: 6px;
+            text-align: center;
+            font-size: 10px;
+            color: #888888;
+        }
+
+        /* Helpers */
+        .text-left { text-align: left; }
+        .text-right { text-align: right; }
+        .text-center { text-align: center; }
+    </style>
+</head>
+
+<body>
+    
+    
+    <table cellspacing="0" cellpadding="0" class="header-table">
+        <tr>
+            <td width="50%" class="header-logo-cell">
+                                    <div style="font-size: 20px; font-weight: bold; color: #0074D9; text-transform: uppercase;">
+                        Pampuchovo
+                    </div>
+                            </td>
+            <td width="50%" class="header-title-cell">
+                <div class="invoice-title">
+                    Invoice INV-000001
+                </div>
+                <div class="invoice-subtitle">
+                    Daňový doklad
+                </div>
+                            </td>
+        </tr>
+    </table>
+
+    
+    <table cellspacing="0" cellpadding="0" class="address-table">
+        <tr>
+            <td width="50%" class="supplier-cell">
+                <div class="section-label">DODAVATEL</div>
+                <div class="party-name">Pampuchovo</div>
+                <div class="party-address">
+                                            1180 Market Street<br>
+                                                    Suite 400<br>
+                                                68724 Uherský Ostroh
+                                                    <br>Czechia
+                                                            </div>
+
+                <table class="id-table">
+                                            <tr>
+                            <td class="id-label">IČO</td>
+                            <td class="id-value">87317877</td>
+                        </tr>
+                                                                <tr>
+                            <td class="id-label">DIČ</td>
+                            <td class="id-value">CZ8401314592</td>
+                        </tr>
+                                    </table>
+            </td>
+
+            <td width="50%" class="customer-cell">
+                <div class="section-label">ODBĚRATEL</div>
+                <div class="party-name">Bernice Kirlin</div>
+                <div class="party-address">
+                                            asdda 12<br>
+                                                 TEST
+                                                    <br>Albania
+                                                            </div>
+
+                <table class="id-table">
+                                            <tr>
+                            <td class="id-label">IČO</td>
+                            <td class="id-value">12345678</td>
+                        </tr>
+                                                        </table>
+            </td>
+        </tr>
+    </table>
+
+    
+    <table cellspacing="0" cellpadding="0" class="middle-boxes-table">
+        <tr>
+            <td width="50%" class="payment-box">
+                                <table width="100%" cellspacing="0" cellpadding="0">
+                    <tr>
+                        <td class="box-label-white">Bankovní účet</td>
+                        <td class="box-value-white-bold">2101071798/2010</td>
+                    </tr>
+                    <tr>
+                        <td class="box-label-white">Variabilní symbol</td>
+                        <td class="box-value-white-bold">000001</td>
+                    </tr>
+                    <tr>
+                        <td class="box-label-white">Způsob platby</td>
+                        <td class="box-value-white">Převodem</td>
+                    </tr>
+                                            <tr>
+                            <td class="box-label-white" style="font-size: 11px; opacity: 0.85;">IBAN</td>
+                            <td class="box-value-white" style="font-size: 11px; opacity: 0.85;">CZ7520100000002101071798</td>
+                        </tr>
+                                                                <tr>
+                            <td class="box-label-white" style="font-size: 11px; opacity: 0.85;">BIC / SWIFT</td>
+                            <td class="box-value-white" style="font-size: 11px; opacity: 0.85;">FIOBCZPPXXX</td>
+                        </tr>
+                                    </table>
+            </td>
+            <td width="50%" class="dates-box">
+                <table width="100%" cellspacing="0" cellpadding="0">
+                    <tr>
+                        <td class="box-label-gray">Datum vystavení</td>
+                        <td class="box-value-gray">2026/10/07</td>
+                    </tr>
+                    <tr>
+                        <td class="box-label-gray">Datum splatnosti</td>
+                        <td class="box-value-gray-bold">2026/10/14</td>
+                    </tr>
+                    <tr>
+                        <td class="box-label-gray">Datum zdan. plnění</td>
+                        <td class="box-value-gray">2026/10/07</td>
+                    </tr>
+                </table>
+            </td>
+        </tr>
+    </table>
+
+    
+    <div class="intro-heading">
+        Fakturujeme Vám následující položky
+    </div>
+
+    
+    <div class="items-table-wrapper">
+        <div class="items-table-inset">
+    <table width="100%" class="items-table" cellspacing="0" cellpadding="0" border="0">
+        <thead>
+            <tr class="item-table-heading-row">
+                <th width="14%" class="item-table-heading text-left">Množství</th>
+                <th class="item-table-heading text-left">Položka</th>
+                                <th width="12%" class="item-table-heading text-right">DPH</th>
+                <th width="18%" class="item-table-heading text-right">CENA ZA MJ</th>
+                                <th width="22%" class="item-table-heading text-right col-total-heading">CELKEM BEZ DPH</th>
+            </tr>
+        </thead>
+        <tbody>
+                                            <tr class="item-row">
+                    <td class="item-cell text-left" style="vertical-align: top;">
+                        1                     </td>
+                    <td class="item-cell text-left" style="vertical-align: top;">
+                        <span class="item-name">teeeest</span>
+                                            </td>
+                                        <td class="item-cell text-right" style="vertical-align: top;">
+                        -
+                    </td>
+                    <td class="item-cell text-right" style="vertical-align: top;">
+                        <span style="font-family: DejaVu Sans;">DH </span>200.00
+                    </td>
+                                        <td class="item-cell text-right item-cell-total" style="vertical-align: top;">
+                        <span style="font-family: DejaVu Sans;">DH </span>200.00
+                    </td>
+                </tr>
+                    </tbody>
+    </table>
+</div>
+
+
+<div class="bottom-section">
+    <table width="100%" cellspacing="0" cellpadding="0" style="margin-top: 30px;">
+        <tr>
+            <td width="45%" valign="top" style="padding-left: 35px; padding-right: 20px;">
+                
+                            </td>
+
+            <td width="55%" valign="top" style="padding-right: 35px; padding-left: 10px;">
+                <table width="100%" cellspacing="0" cellpadding="0" class="tax-summary-table">
+                    <thead>
+                        <tr class="tax-head-row">
+                            <th class="tax-head text-left">SAZBA</th>
+                            <th class="tax-head text-right">ZÁKLAD</th>
+                            <th class="tax-head text-right">DPH</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                                                    <tr class="tax-data-row">
+                                <td class="tax-cell text-left">0 %</td>
+                                <td class="tax-cell text-right"><span style="font-family: DejaVu Sans;">DH </span>200.00</td>
+                                <td class="tax-cell text-right"><span style="font-family: DejaVu Sans;">DH </span>0.00</td>
+                            </tr>
+                                            </tbody>
+                </table>
+
+                <div class="tax-accent-line"></div>
+
+                <div class="grand-total-amount">
+                    <span style="font-family: DejaVu Sans;">DH </span>200.00
+                </div>
+
+                
+                <div class="signature-block">
+                    <div class="signature-line">
+                        Razítko a podpis
+                    </div>
+                </div>
+            </td>
+        </tr>
+    </table>
+</div>
+    </div>
+</body>
+
+</html>
