@@ -2,9 +2,15 @@
 <html>
 
 <head>
-    <title>@lang($invoice->isCreditNote() ? 'pdf_credit_note_label' : 'pdf_invoice_label') - {{ $invoice->invoice_number }}</title>
+    <title>@lang((method_exists($invoice, 'isCreditNote') && $invoice->isCreditNote()) ? 'pdf_credit_note_label' : 'pdf_invoice_label') - {{ $invoice->invoice_number }}</title>
     <meta http-equiv="Content-Type" content="text/html; charset=utf-8" />
-@include("app.pdf.partials.fonts")
+@if (view()->exists("app.pdf.partials.fonts"))
+    @include("app.pdf.partials.fonts")
+@else
+    <style type="text/css">
+        body { font-family: 'DejaVu Sans', sans-serif; }
+    </style>
+@endif
 
     <style type="text/css">
         @page {
@@ -352,15 +358,32 @@
 </head>
 
 <body>
-    @include('app.pdf.partials.credit-note-banner')
+    @if (view()->exists('app.pdf.partials.credit-note-banner'))
+        @include('app.pdf.partials.credit-note-banner')
+    @endif
+
+    @php
+        $logoSrc = null;
+        if ($logo) {
+            if (class_exists('\App\Platform\Pdf\Rendering\ImageUtils')) {
+                $logoSrc = \App\Platform\Pdf\Rendering\ImageUtils::toBase64Src($logo);
+            } elseif (class_exists('\App\Support\Pdf\ImageUtils')) {
+                $logoSrc = \App\Support\Pdf\ImageUtils::toBase64Src($logo);
+            } elseif (file_exists($logo)) {
+                $logoSrc = 'data:image/png;base64,' . base64_encode(file_get_contents($logo));
+            } else {
+                $logoSrc = $logo;
+            }
+        }
+    @endphp
 
     {{-- Top Header: Logo on left, Blue Title box on right --}}
     <table cellspacing="0" cellpadding="0" class="header-table">
         <tr>
             <td width="50%" class="header-logo-cell">
-                @if ($logo)
-                    <img style="max-height: 48px; max-width: 240px;" src="{{ \App\Platform\Pdf\Rendering\ImageUtils::toBase64Src($logo) }}" alt="Company Logo">
-                @else
+                @if ($logoSrc)
+                    <img style="max-height: 48px; max-width: 240px;" src="{{ $logoSrc }}" alt="Company Logo">
+                @elseif ($invoice->company)
                     <div style="font-size: 20px; font-weight: bold; color: #0074D9; text-transform: uppercase;">
                         {{ $invoice->company->name }}
                     </div>
@@ -368,12 +391,14 @@
             </td>
             <td width="50%" class="header-title-cell">
                 <div class="invoice-title">
-                    @lang($invoice->isCreditNote() ? 'pdf_credit_note_label' : 'pdf_invoice_label') {{ $invoice->invoice_number }}
+                    @lang((method_exists($invoice, 'isCreditNote') && $invoice->isCreditNote()) ? 'pdf_credit_note_label' : 'pdf_invoice_label') {{ $invoice->invoice_number }}
                 </div>
                 <div class="invoice-subtitle">
-                    {{ $invoice->isCreditNote() ? __('pdf_credit_note_label') : 'Daňový doklad' }}
+                    {{ (method_exists($invoice, 'isCreditNote') && $invoice->isCreditNote()) ? __('pdf_credit_note_label') : 'Daňový doklad' }}
                 </div>
-                @include('app.pdf.partials.document-custom-fields-stacked', ['document' => $invoice])
+                @if (view()->exists('app.pdf.partials.document-custom-fields-stacked'))
+                    @include('app.pdf.partials.document-custom-fields-stacked', ['document' => $invoice])
+                @endif
             </td>
         </tr>
     </table>
@@ -383,9 +408,9 @@
         <tr>
             <td width="50%" class="supplier-cell">
                 <div class="section-label">DODAVATEL</div>
-                <div class="party-name">{{ $invoice->company->name }}</div>
+                <div class="party-name">{{ $invoice->company?->name ?? '' }}</div>
                 <div class="party-address">
-                    @if ($invoice->company->address)
+                    @if ($invoice->company && $invoice->company->address)
                         {{ $invoice->company->address->address_street_1 }}<br>
                         @if ($invoice->company->address->address_street_2)
                             {{ $invoice->company->address->address_street_2 }}<br>
@@ -400,13 +425,13 @@
                 </div>
 
                 <table class="id-table">
-                    @if (!empty($invoice->company->tax_id))
+                    @if (!empty($invoice->company?->tax_id))
                         <tr>
                             <td class="id-label">IČO</td>
                             <td class="id-value">{{ $invoice->company->tax_id }}</td>
                         </tr>
                     @endif
-                    @if (!empty($invoice->company->vat_id))
+                    @if (!empty($invoice->company?->vat_id))
                         <tr>
                             <td class="id-label">DIČ</td>
                             <td class="id-value">{{ $invoice->company->vat_id }}</td>
@@ -417,9 +442,9 @@
 
             <td width="50%" class="customer-cell">
                 <div class="section-label">ODBĚRATEL</div>
-                <div class="party-name">{{ $invoice->customer->name }}</div>
+                <div class="party-name">{{ $invoice->customer?->name ?? '' }}</div>
                 <div class="party-address">
-                    @if ($invoice->customer->billingAddress)
+                    @if ($invoice->customer && $invoice->customer->billingAddress)
                         {{ $invoice->customer->billingAddress->address_street_1 }}<br>
                         @if ($invoice->customer->billingAddress->address_street_2)
                             {{ $invoice->customer->billingAddress->address_street_2 }}<br>
@@ -434,13 +459,13 @@
                 </div>
 
                 <table class="id-table">
-                    @if (!empty($invoice->customer->ico))
+                    @if (!empty($invoice->customer?->ico))
                         <tr>
                             <td class="id-label">IČO</td>
                             <td class="id-value">{{ $invoice->customer->ico }}</td>
                         </tr>
                     @endif
-                    @if (!empty($invoice->customer->tax_id))
+                    @if (!empty($invoice->customer?->tax_id))
                         <tr>
                             <td class="id-label">DIČ</td>
                             <td class="id-value">{{ $invoice->customer->tax_id }}</td>
@@ -456,14 +481,14 @@
         <tr>
             <td width="50%" class="payment-box">
                 @php
-                    $bankAccount = $invoice->company->bank_account_number;
-                    if (!empty($invoice->company->bank_account_prefix)) {
+                    $bankAccount = $invoice->company?->bank_account_number ?? null;
+                    if (!empty($invoice->company?->bank_account_prefix)) {
                         $bankAccount = $invoice->company->bank_account_prefix . '-' . $bankAccount;
                     }
-                    if (!empty($invoice->company->bank_code)) {
+                    if (!empty($invoice->company?->bank_code)) {
                         $bankAccount .= '/' . $invoice->company->bank_code;
                     }
-                    if (empty($bankAccount) && !empty($invoice->company->bank_iban)) {
+                    if (empty($bankAccount) && !empty($invoice->company?->bank_iban)) {
                         $bankAccount = $invoice->company->bank_iban;
                     }
                     $variableSymbol = preg_replace('/[^0-9]/', '', $invoice->invoice_number);
@@ -481,13 +506,13 @@
                         <td class="box-label-white">Způsob platby</td>
                         <td class="box-value-white">Převodem</td>
                     </tr>
-                    @if (!empty($invoice->company->bank_iban) && $bankAccount !== $invoice->company->bank_iban)
+                    @if (!empty($invoice->company?->bank_iban) && $bankAccount !== $invoice->company->bank_iban)
                         <tr>
                             <td class="box-label-white" style="font-size: 11px; opacity: 0.85;">IBAN</td>
                             <td class="box-value-white" style="font-size: 11px; opacity: 0.85;">{{ $invoice->company->bank_iban }}</td>
                         </tr>
                     @endif
-                    @if (!empty($invoice->company->bank_bic))
+                    @if (!empty($invoice->company?->bank_bic))
                         <tr>
                             <td class="box-label-white" style="font-size: 11px; opacity: 0.85;">BIC / SWIFT</td>
                             <td class="box-value-white" style="font-size: 11px; opacity: 0.85;">{{ $invoice->company->bank_bic }}</td>
@@ -521,7 +546,11 @@
 
     {{-- Items Table & Bottom Totals / QR Code --}}
     <div class="items-table-wrapper">
-        @include('pdf_templates::invoice.partials.custom2.table')
+        @if (view()->exists('pdf_templates::invoice.partials.custom2.table'))
+            @include('pdf_templates::invoice.partials.custom2.table')
+        @elseif (view()->exists('app.pdf.invoice.partials.table'))
+            @include('app.pdf.invoice.partials.table')
+        @endif
     </div>
 </body>
 

@@ -4,9 +4,11 @@
             <tr class="item-table-heading-row">
                 <th width="14%" class="item-table-heading text-left">Množství</th>
                 <th class="item-table-heading text-left">Položka</th>
-                @foreach($customFields as $field)
-                    <th class="item-table-heading text-right">{{ $field->label }}</th>
-                @endforeach
+                @if(!empty($customFields))
+                    @foreach($customFields as $field)
+                        <th class="item-table-heading text-right">{{ $field->label }}</th>
+                    @endforeach
+                @endif
                 <th width="12%" class="item-table-heading text-right">DPH</th>
                 <th width="18%" class="item-table-heading text-right">CENA ZA MJ</th>
                 @if($invoice->discount_per_item === 'YES')
@@ -16,6 +18,9 @@
             </tr>
         </thead>
         <tbody>
+            @php
+                $currency = $invoice->currency ?: ($invoice->customer?->currency ?: null);
+            @endphp
             @foreach ($invoice->items as $item)
                 @php
                     $taxPercent = null;
@@ -35,21 +40,23 @@
                             <span class="item-description">{!! nl2br(htmlspecialchars($item->description)) !!}</span>
                         @endif
                     </td>
-                    @foreach($customFields as $field)
-                        <td class="item-cell text-right" style="vertical-align: top;">
-                            {{ $item->getFormattedCustomFieldValueBySlug($field->slug) }}
-                        </td>
-                    @endforeach
+                    @if(!empty($customFields))
+                        @foreach($customFields as $field)
+                            <td class="item-cell text-right" style="vertical-align: top;">
+                                {{ method_exists($item, 'getFormattedCustomFieldValueBySlug') ? $item->getFormattedCustomFieldValueBySlug($field->slug) : '' }}
+                            </td>
+                        @endforeach
+                    @endif
                     <td class="item-cell text-right" style="vertical-align: top;">
                         {{ $taxPercent !== null ? $taxPercent . ' %' : '-' }}
                     </td>
                     <td class="item-cell text-right" style="vertical-align: top;">
-                        {!! format_money_pdf($item->price, $invoice->customer->currency) !!}
+                        {!! format_money_pdf($item->price, $currency) !!}
                     </td>
                     @if($invoice->discount_per_item === 'YES')
                         <td class="item-cell text-right" style="vertical-align: top;">
                             @if($item->discount_type === 'fixed')
-                                {!! format_money_pdf($item->discount_val, $invoice->customer->currency) !!}
+                                {!! format_money_pdf($item->discount_val, $currency) !!}
                             @endif
                             @if($item->discount_type === 'percentage')
                                 {{$item->discount}}%
@@ -57,7 +64,7 @@
                         </td>
                     @endif
                     <td class="item-cell text-right item-cell-total" style="vertical-align: top;">
-                        {!! format_money_pdf($item->price * $item->quantity, $invoice->customer->currency) !!}
+                        {!! format_money_pdf($item->price * $item->quantity, $currency) !!}
                     </td>
                 </tr>
             @endforeach
@@ -66,14 +73,53 @@
 </div>
 
 @php
-    $qrService = new \App\Domains\Sales\Support\PaymentQrService();
-    $qrPayload = $qrService->generatePayload($invoice);
-    $qrImage = $qrPayload ? $qrService->generateQrBase64($qrPayload) : null;
+    $qrImage = null;
+    if (class_exists('\App\Domains\Sales\Support\PaymentQrService')) {
+        try {
+            $qrService = new \App\Domains\Sales\Support\PaymentQrService();
+            $qrPayload = $qrService->generatePayload($invoice);
+            $qrImage = $qrPayload ? $qrService->generateQrBase64($qrPayload) : null;
+        } catch (\Throwable $e) {}
+    }
+
+    if (!$qrImage && ($invoice->status ?? '') !== 'PAID') {
+        try {
+            $company = $invoice->company;
+            $currCode = $currency ? $currency->code : 'CZK';
+            $spd = null;
+            if ($currCode === 'CZK' || empty($currCode)) {
+                $amount = number_format(($invoice->due_amount ?? $invoice->total) / 100, 2, '.', '');
+                $spd = "SPD*1.0*AM:{$amount}*CC:CZK";
+                if (!empty($company?->bank_iban)) {
+                    $spd .= "*IB:" . strtoupper(str_replace(' ', '', $company->bank_iban));
+                } elseif (!empty($company?->bank_account_number)) {
+                    $acc = $company->bank_account_number;
+                    if (!empty($company->bank_account_prefix)) { $acc = $company->bank_account_prefix . '-' . $acc; }
+                    $spd .= "*ACC:" . $acc . (!empty($company->bank_code) ? '/' . $company->bank_code : '');
+                }
+                $vs = preg_replace('/[^0-9]/', '', $invoice->invoice_number);
+                if (!empty($vs)) { $spd .= "*X-VS:" . substr($vs, 0, 10); }
+            } elseif ($currCode === 'EUR' && !empty($company?->bank_iban)) {
+                $amount = number_format(($invoice->due_amount ?? $invoice->total) / 100, 2, '.', '');
+                $iban = strtoupper(str_replace(' ', '', $company->bank_iban));
+                $bic = strtoupper(str_replace(' ', '', $company->bank_bic ?? ''));
+                $beneficiary = mb_substr($company->bank_account_holder ?: ($company->name ?? ''), 0, 70);
+                $spd = implode("\n", ['BCD', '002', '1', 'SCT', $bic, $beneficiary, $iban, 'EUR' . $amount, '', '', 'Invoice ' . $invoice->invoice_number, '']);
+            }
+            if ($spd) {
+                $qrUrl = 'https://chart.googleapis.com/chart?chs=150x150&cht=qr&chl=' . urlencode($spd) . '&choe=UTF-8&chld=M|0';
+                $rawImg = @file_get_contents($qrUrl);
+                if ($rawImg) {
+                    $qrImage = 'data:image/png;base64,' . base64_encode($rawImg);
+                }
+            }
+        } catch (\Throwable $e) {}
+    }
 
     $taxRows = [];
-    if ($invoice->tax_per_item === 'YES') {
+    if (($invoice->tax_per_item ?? '') === 'YES' && !empty($invoice->items)) {
         foreach ($invoice->items as $item) {
-            $itemTax = $item->taxes->first();
+            $itemTax = ($item->taxes && $item->taxes->isNotEmpty()) ? $item->taxes->first() : null;
             $rateKey = $itemTax ? (string)$itemTax->percent : '0';
             $rateLabel = $itemTax ? $itemTax->percent . ' %' : '0 %';
             if (!isset($taxRows[$rateKey])) {
@@ -86,7 +132,7 @@
             $taxRows[$rateKey]['base'] += ($item->price * $item->quantity);
             $taxRows[$rateKey]['tax'] += $itemTax ? $itemTax->amount : 0;
         }
-    } elseif ($invoice->taxes && $invoice->taxes->isNotEmpty()) {
+    } elseif (!empty($invoice->taxes) && $invoice->taxes->isNotEmpty()) {
         foreach ($invoice->taxes as $tax) {
             $rateKey = (string)$tax->percent;
             $taxRows[$rateKey] = [
@@ -103,8 +149,8 @@
         ];
     }
 
-    $creditedTotal = $invoice->relationLoaded('creditNotes') ? -(int) $invoice->creditNotes->sum('total') : 0;
-    $amountPaid = (int) $invoice->total - (int) $invoice->due_amount - $creditedTotal;
+    $creditedTotal = (method_exists($invoice, 'relationLoaded') && $invoice->relationLoaded('creditNotes')) ? -(int) $invoice->creditNotes->sum('total') : 0;
+    $amountPaid = (int) ($invoice->total ?? 0) - (int) ($invoice->due_amount ?? 0) - $creditedTotal;
 @endphp
 
 <div class="bottom-section">
@@ -118,7 +164,7 @@
                     </div>
                 @endif
 
-                @if ($notes)
+                @if (!empty($notes))
                     <div class="notes-container">
                         <div class="notes-label">@lang('pdf_notes')</div>
                         <div class="notes-body">{!! $notes !!}</div>
@@ -139,8 +185,8 @@
                         @foreach ($taxRows as $row)
                             <tr class="tax-data-row">
                                 <td class="tax-cell text-left">{{ $row['rate'] }}</td>
-                                <td class="tax-cell text-right">{!! format_money_pdf($row['base'], $invoice->customer->currency) !!}</td>
-                                <td class="tax-cell text-right">{!! format_money_pdf($row['tax'], $invoice->customer->currency) !!}</td>
+                                <td class="tax-cell text-right">{!! format_money_pdf($row['base'], $currency) !!}</td>
+                                <td class="tax-cell text-right">{!! format_money_pdf($row['tax'], $currency) !!}</td>
                             </tr>
                         @endforeach
                     </tbody>
@@ -149,19 +195,19 @@
                 <div class="tax-accent-line"></div>
 
                 <div class="grand-total-amount">
-                    {!! format_money_pdf($invoice->total, $invoice->customer->currency) !!}
+                    {!! format_money_pdf($invoice->total, $currency) !!}
                 </div>
 
                 @if($creditedTotal > 0 || $amountPaid > 0)
                     <div class="payment-summary-block">
                         @if($amountPaid > 0)
-                            <div>@lang('pdf_amount_paid'): {!! format_money_pdf($amountPaid, $invoice->customer->currency) !!}</div>
+                            <div>@lang('pdf_amount_paid'): {!! format_money_pdf($amountPaid, $currency) !!}</div>
                         @endif
                         @if($creditedTotal > 0)
-                            <div>@lang('pdf_amount_credited'): {!! format_money_pdf($creditedTotal, $invoice->customer->currency) !!}</div>
+                            <div>@lang('pdf_amount_credited'): {!! format_money_pdf($creditedTotal, $currency) !!}</div>
                         @endif
                         <div class="amount-due-line">
-                            @lang('pdf_amount_due'): {!! format_money_pdf($invoice->due_amount, $invoice->customer->currency) !!}
+                            @lang('pdf_amount_due'): {!! format_money_pdf($invoice->due_amount, $currency) !!}
                         </div>
                     </div>
                 @endif
