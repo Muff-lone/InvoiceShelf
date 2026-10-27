@@ -201,6 +201,8 @@ trait GeneratesPdf
 
         $fields['{COMPANY_VAT}'] = $this->company->vat_id;
         $fields['{COMPANY_TAX}'] = $this->company->tax_id;
+        $fields['{COMPANY_ICO}'] = $this->company->ico ?: $this->company->tax_id;
+        $fields['{COMPANY_REGISTRY_INFO}'] = $this->company->registry_info;
         $fields['{CONTACT_DISPLAY_NAME}'] = $customer->name;
         $fields['{PRIMARY_CONTACT_NAME}'] = $customer->contact_name;
         $fields['{CONTACT_EMAIL}'] = $customer->email;

@@ -24,8 +24,11 @@ class CompanyRequest extends FormRequest
     /** Columns lifted off the validated payload onto the company row. */
     private const COMPANY_FIELDS = [
         'name',
+        'ico',
         'vat_id',
         'tax_id',
+        'vat_payer',
+        'registry_info',
         'bank_name',
         'bank_account_holder',
         'bank_iban',
@@ -57,11 +60,25 @@ class CompanyRequest extends FormRequest
                 'required',
                 $this->unclaimedName(),
             ],
+            'ico' => [
+                'nullable',
+                'string',
+                'max:32',
+            ],
             'vat_id' => [
                 'nullable',
             ],
             'tax_id' => [
                 'nullable',
+            ],
+            'vat_payer' => [
+                'nullable',
+                'boolean',
+            ],
+            'registry_info' => [
+                'nullable',
+                'string',
+                'max:500',
             ],
             'bank_name' => ['nullable'],
             'bank_account_holder' => ['nullable'],
@@ -105,8 +122,16 @@ class CompanyRequest extends FormRequest
      */
     public function getCompanyPayload()
     {
+        $payload = Arr::only($this->validated(), self::COMPANY_FIELDS);
+
+        if (array_key_exists('ico', $payload) && ! array_key_exists('tax_id', $payload)) {
+            $payload['tax_id'] = $payload['ico'];
+        } elseif (array_key_exists('tax_id', $payload) && ! array_key_exists('ico', $payload)) {
+            $payload['ico'] = $payload['tax_id'];
+        }
+
         return array_merge(
-            Arr::only($this->validated(), self::COMPANY_FIELDS),
+            $payload,
             ['slug' => Str::slug($this->name)]
         );
     }

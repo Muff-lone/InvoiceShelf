@@ -97,8 +97,17 @@
                     if (!empty($company->bank_account_prefix)) { $acc = $company->bank_account_prefix . '-' . $acc; }
                     $spd .= "*ACC:" . $acc . (!empty($company->bank_code) ? '/' . $company->bank_code : '');
                 }
-                $vs = preg_replace('/[^0-9]/', '', $invoice->invoice_number);
+                $rawVs = !empty($invoice->variable_symbol) ? $invoice->variable_symbol : $invoice->invoice_number;
+                $vs = preg_replace('/[^0-9]/', '', (string) $rawVs);
                 if (!empty($vs)) { $spd .= "*X-VS:" . substr($vs, 0, 10); }
+                if (!empty($invoice->constant_symbol)) {
+                    $ks = preg_replace('/[^0-9]/', '', (string) $invoice->constant_symbol);
+                    if (!empty($ks)) { $spd .= "*X-KS:" . substr($ks, 0, 4); }
+                }
+                if (!empty($invoice->specific_symbol)) {
+                    $ss = preg_replace('/[^0-9]/', '', (string) $invoice->specific_symbol);
+                    if (!empty($ss)) { $spd .= "*X-SS:" . substr($ss, 0, 10); }
+                }
             } elseif ($currCode === 'EUR' && !empty($company?->bank_iban)) {
                 $amount = number_format(($invoice->due_amount ?? $invoice->total) / 100, 2, '.', '');
                 $iban = strtoupper(str_replace(' ', '', $company->bank_iban));

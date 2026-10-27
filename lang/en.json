@@ -679,7 +679,18 @@
     "marked_as_sent_message": "Invoice marked as sent successfully",
     "something_went_wrong": "something went wrong",
     "invalid_due_amount_message": "Total Invoice amount cannot be less than total paid amount for this Invoice. Please update the invoice or delete the associated payments to continue.",
-    "mark_as_default_invoice_template_description": "If enabled, the selected template will be automatically selected for new invoices."
+    "mark_as_default_invoice_template_description": "If enabled, the selected template will be automatically selected for new invoices.",
+    "taxable_supply_date": "Taxable Supply Date (DUZP)",
+    "variable_symbol": "Variable Symbol",
+    "constant_symbol": "Constant Symbol",
+    "specific_symbol": "Specific Symbol",
+    "payment_method": "Payment Method",
+    "payment_methods": {
+      "bank_transfer": "Bank Transfer",
+      "cash": "Cash",
+      "card": "Card",
+      "cod": "Cash on Delivery"
+    }
   },
   "recurring_invoices": {
     "title": "Recurring Invoices",
@@ -1432,7 +1443,10 @@
       "danger_zone": "Danger Zone",
       "are_you_absolutely_sure": "Are you absolutely sure?",
       "delete_company_modal_desc": "This action cannot be undone. This will permanently delete {company} and all of its associated data.",
-      "delete_company_modal_label": "Please type {company} to confirm"
+      "delete_company_modal_label": "Please type {company} to confirm",
+      "ico": "Company ID (IČO)",
+      "vat_payer": "VAT Payer",
+      "registry_info": "Commercial Register Entry"
     },
     "custom_fields": {
       "title": "Custom Fields",
@@ -2717,5 +2731,16 @@
   "pdf_bill_label": "Bill",
   "pdf_supplier_label": "Supplier",
   "pdf_all_suppliers_label": "All suppliers",
-  "pdf_tax_document_basis_note": "Document-date basis: issued invoices, recorded bills and credits are included whether paid or unpaid. Expenses use their expense date. Payments and refunds do not create additional tax."
+  "pdf_tax_document_basis_note": "Document-date basis: issued invoices, recorded bills and credits are included whether paid or unpaid. Expenses use their expense date. Payments and refunds do not create additional tax.",
+  "pdf_registry_info": "Commercial Register",
+  "pdf_not_vat_payer": "Not a VAT payer",
+  "pdf_taxable_supply_date": "Taxable Supply Date (DUZP)",
+  "pdf_variable_symbol": "Variable Symbol",
+  "pdf_constant_symbol": "Constant Symbol",
+  "pdf_specific_symbol": "Specific Symbol",
+  "pdf_payment_method": "Payment Method",
+  "pdf_payment_method_bank_transfer": "Bank Transfer",
+  "pdf_payment_method_cash": "Cash",
+  "pdf_payment_method_card": "Card",
+  "pdf_payment_method_cod": "Cash on Delivery"
 }

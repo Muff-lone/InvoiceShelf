@@ -29,8 +29,11 @@ class CompanyResource extends JsonResource
         return [
             'id' => $company->id,
             'name' => $company->name,
+            'ico' => $company->ico ?? $company->tax_id,
             'vat_id' => $company->vat_id,
-            'tax_id' => $company->tax_id,
+            'tax_id' => $company->tax_id ?? $company->ico,
+            'vat_payer' => (bool) ($company->vat_payer ?? true),
+            'registry_info' => $company->registry_info,
             'bank_name' => $company->bank_name,
             'bank_account_holder' => $company->bank_account_holder,
             'bank_iban' => $company->bank_iban,

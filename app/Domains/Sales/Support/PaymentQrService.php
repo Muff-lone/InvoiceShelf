@@ -11,7 +11,12 @@ class PaymentQrService
      */
     public function generatePayload(Invoice $invoice): ?string
     {
-        if ($invoice->status === 'PAID') {
+        if (
+            $invoice->status === 'PAID'
+            || $invoice->paid_status === 'PAID'
+            || $invoice->due_amount <= 0
+            || (method_exists($invoice, 'isCreditNote') && $invoice->isCreditNote())
+        ) {
             return null;
         }
         
@@ -67,14 +72,29 @@ class PaymentQrService
             $payload .= "*ACC:" . $account . '/' . $company->bank_code;
         }
 
-        // Variable symbol is usually the invoice number (digits only)
-        $vs = preg_replace('/[^0-9]/', '', $invoice->invoice_number);
-        if (!empty($vs)) {
+        // Variable symbol prioritizes the explicit variable_symbol column, falling back to invoice_number digits
+        $rawVs = ! empty($invoice->variable_symbol) ? $invoice->variable_symbol : $invoice->invoice_number;
+        $vs = preg_replace('/[^0-9]/', '', (string) $rawVs);
+        if (! empty($vs)) {
             // Truncate VS to 10 digits as per spec
-            $payload .= "*X-VS:" . substr($vs, 0, 10);
+            $payload .= '*X-VS:'.substr($vs, 0, 10);
         }
 
-        $payload .= "*MSG:" . substr("Invoice " . $invoice->invoice_number, 0, 60);
+        if (! empty($invoice->constant_symbol)) {
+            $ks = preg_replace('/[^0-9]/', '', (string) $invoice->constant_symbol);
+            if (! empty($ks)) {
+                $payload .= '*X-KS:'.substr($ks, 0, 4);
+            }
+        }
+
+        if (! empty($invoice->specific_symbol)) {
+            $ss = preg_replace('/[^0-9]/', '', (string) $invoice->specific_symbol);
+            if (! empty($ss)) {
+                $payload .= '*X-SS:'.substr($ss, 0, 10);
+            }
+        }
+
+        $payload .= '*MSG:'.substr('Invoice '.$invoice->invoice_number, 0, 60);
 
         return $payload;
     }

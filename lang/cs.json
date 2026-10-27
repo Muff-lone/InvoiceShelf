@@ -476,7 +476,18 @@
     "marked_as_sent_message": "Faktura označena jako úspěšně odeslaná",
     "something_went_wrong": "něco se nezdařilo",
     "invalid_due_amount_message": "Celková částka faktury nemůže být nižší než celková částka zaplacená za tuto fakturu. Chcete-li pokračovat, upravte fakturu nebo smažte související platby.",
-    "mark_as_default_invoice_template_description": "Je-li povoleno, bude vybraná šablona automaticky vybrána pro nové faktury."
+    "mark_as_default_invoice_template_description": "Je-li povoleno, bude vybraná šablona automaticky vybrána pro nové faktury.",
+    "taxable_supply_date": "Datum zdanitelného plnění (DUZP)",
+    "variable_symbol": "Variabilní symbol",
+    "constant_symbol": "Konstantní symbol",
+    "specific_symbol": "Specifický symbol",
+    "payment_method": "Způsob úhrady",
+    "payment_methods": {
+      "bank_transfer": "Převodem",
+      "cash": "Hotově",
+      "card": "Platební kartou",
+      "cod": "Dobírkou"
+    }
   },
   "recurring_invoices": {
     "title": "Opakující se faktury",
@@ -944,7 +955,10 @@
       "delete_company_description": "Jakmile svou společnost odstraníte, trvale přijdete o všechna data a soubory s ní spojené.",
       "are_you_absolutely_sure": "Jste si opravdu jisti?",
       "delete_company_modal_desc": "Tuto akci nelze vrátit zpět. Tato akce trvale odstraní {company} a všechna související data.",
-      "delete_company_modal_label": "Zadejte prosím {company} pro potvrzení"
+      "delete_company_modal_label": "Zadejte prosím {company} pro potvrzení",
+      "ico": "IČO",
+      "vat_payer": "Plátce DPH",
+      "registry_info": "Zápis v rejstříku (spisová značka)"
     },
     "custom_fields": {
       "title": "Vlastní pole",
@@ -1665,5 +1679,17 @@
   "mail_view_payment": "Zobrazit platbu",
   "notification_view_estimate": "[Notifikace] Zobrazený odhad",
   "notification_view_invoice": "[Notifikace] Zobrazená faktura",
-  "You have received a new invoice from <b>{COMPANY_NAME}</b>.</br> Please download using the button below:": "Obdrželi jste novou fakturu od <b>{COMPANY_NAME}</b>.</br> Stáhněte si pomocí tlačítka níže:"
+  "You have received a new invoice from <b>{COMPANY_NAME}</b>.</br> Please download using the button below:": "Obdrželi jste novou fakturu od <b>{COMPANY_NAME}</b>.</br> Stáhněte si pomocí tlačítka níže:",
+  "pdf_ico": "IČO",
+  "pdf_registry_info": "Zápis v rejstříku",
+  "pdf_not_vat_payer": "Nejsme plátci DPH",
+  "pdf_taxable_supply_date": "Datum zdan. plnění (DUZP)",
+  "pdf_variable_symbol": "Variabilní symbol",
+  "pdf_constant_symbol": "Konstantní symbol",
+  "pdf_specific_symbol": "Specifický symbol",
+  "pdf_payment_method": "Způsob úhrady",
+  "pdf_payment_method_bank_transfer": "Převodem",
+  "pdf_payment_method_cash": "Hotově",
+  "pdf_payment_method_card": "Platební kartou",
+  "pdf_payment_method_cod": "Dobírkou"
 }

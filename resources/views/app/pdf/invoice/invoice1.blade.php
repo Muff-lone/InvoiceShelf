@@ -382,6 +382,7 @@
 
             <div class="company-address-container company-address">
                 {!! $company_address !!}
+                @include('app.pdf.partials.company-legal-details')
             </div>
 
             <div class="invoice-details-container">
@@ -394,6 +395,12 @@
                         <td class="attribute-label">@lang($invoice->isCreditNote() ? 'pdf_credit_note_date' : 'pdf_invoice_date')</td>
                         <td class="attribute-value"> &nbsp;{{ $invoice->formattedInvoiceDate }}</td>
                     </tr>
+                    @if ($invoice->company?->isVatPayer() ?? true)
+                        <tr>
+                            <td class="attribute-label">@lang('pdf_taxable_supply_date')</td>
+                            <td class="attribute-value"> &nbsp;{{ $invoice->formattedTaxableSupplyDate }}</td>
+                        </tr>
+                    @endif
                     @unless ($invoice->isCreditNote())
                         <tr>
                             <td class="attribute-label">@lang('pdf_invoice_due_date')</td>
@@ -413,6 +420,7 @@
 
                 {!! $billing_address !!}
             @endif
+            @include('app.pdf.partials.customer-legal-details')
         </div>
 
         <div class="shipping-address-container shipping-address" @if ($billing_address !== '<br />') style="float:left;" @else style="display:block; float:left: padding-left: 0px;" @endif>

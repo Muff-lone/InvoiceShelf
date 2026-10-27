@@ -13,8 +13,11 @@ import { useModalStore } from '../../../../stores/modal.store'
 interface CompanyFormData {
   name: string | null
   logo: string | null
+  ico: string | null
   tax_id: string | null
   vat_id: string | null
+  vat_payer: boolean
+  registry_info: string | null
   bank_name: string | null
   bank_account_holder: string | null
   bank_iban: string | null
@@ -48,15 +51,18 @@ const isSaving = ref<boolean>(false)
 const companyForm = reactive<CompanyFormData>({
   name: companyStore.selectedCompany?.name ?? null,
   logo: companyStore.selectedCompany?.logo ?? null,
-  tax_id: companyStore.selectedCompany?.tax_id ?? null,
+  ico: companyStore.selectedCompany?.ico ?? companyStore.selectedCompany?.tax_id ?? null,
+  tax_id: companyStore.selectedCompany?.tax_id ?? companyStore.selectedCompany?.ico ?? null,
   vat_id: companyStore.selectedCompany?.vat_id ?? null,
-  bank_name: (companyStore.selectedCompany as any)?.bank_name ?? null,
-  bank_account_holder: (companyStore.selectedCompany as any)?.bank_account_holder ?? null,
-  bank_iban: (companyStore.selectedCompany as any)?.bank_iban ?? null,
-  bank_bic: (companyStore.selectedCompany as any)?.bank_bic ?? null,
-  bank_account_prefix: (companyStore.selectedCompany as any)?.bank_account_prefix ?? null,
-  bank_account_number: (companyStore.selectedCompany as any)?.bank_account_number ?? null,
-  bank_code: (companyStore.selectedCompany as any)?.bank_code ?? null,
+  vat_payer: companyStore.selectedCompany?.vat_payer ?? true,
+  registry_info: companyStore.selectedCompany?.registry_info ?? null,
+  bank_name: companyStore.selectedCompany?.bank_name ?? null,
+  bank_account_holder: companyStore.selectedCompany?.bank_account_holder ?? null,
+  bank_iban: companyStore.selectedCompany?.bank_iban ?? null,
+  bank_bic: companyStore.selectedCompany?.bank_bic ?? null,
+  bank_account_prefix: companyStore.selectedCompany?.bank_account_prefix ?? null,
+  bank_account_number: companyStore.selectedCompany?.bank_account_number ?? null,
+  bank_code: companyStore.selectedCompany?.bank_code ?? null,
   address: {
     address_street_1: (companyStore.selectedCompany?.address as Record<string, string>)?.address_street_1 ?? '',
     address_street_2: (companyStore.selectedCompany?.address as Record<string, string>)?.address_street_2 ?? '',
@@ -137,8 +143,11 @@ async function updateCompanyData(): Promise<void> {
 
   const res = await companyStore.updateCompany({
     name: companyForm.name ?? '',
+    ico: companyForm.tax_id,
     tax_id: companyForm.tax_id,
     vat_id: companyForm.vat_id,
+    vat_payer: companyForm.vat_payer,
+    registry_info: companyForm.registry_info,
     bank_name: companyForm.bank_name,
     bank_account_holder: companyForm.bank_account_holder,
     bank_iban: companyForm.bank_iban,
@@ -260,6 +269,12 @@ async function updateCompanyData(): Promise<void> {
           </BaseInputGroup>
           <BaseInputGroup :label="$t('settings.company_info.vat_id')">
             <BaseInput v-model="companyForm.vat_id" type="text" />
+          </BaseInputGroup>
+          <BaseInputGroup :label="$t('settings.company_info.vat_payer')">
+            <BaseSwitch v-model="companyForm.vat_payer" class="mt-1 flex" />
+          </BaseInputGroup>
+          <BaseInputGroup :label="$t('settings.company_info.registry_info')">
+            <BaseTextarea v-model="companyForm.registry_info" rows="2" />
           </BaseInputGroup>
         </div>
 

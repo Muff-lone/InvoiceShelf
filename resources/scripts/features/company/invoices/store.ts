@@ -72,6 +72,11 @@ export interface InvoiceFormData {
   template_name: string | null
   invoice_date: string
   due_date: string
+  taxable_supply_date: string
+  variable_symbol: string | null
+  constant_symbol: string | null
+  specific_symbol: string | null
+  payment_method: string | null
   notes: string | null
   discount: number
   discount_type: DiscountType
@@ -105,6 +110,11 @@ function createInvoiceStub(): InvoiceFormData {
     template_name: null,
     invoice_date: '',
     due_date: '',
+    taxable_supply_date: '',
+    variable_symbol: null,
+    constant_symbol: null,
+    specific_symbol: null,
+    payment_method: 'bank_transfer',
     notes: '',
     discount: 0,
     discount_type: 'fixed',
@@ -531,6 +541,8 @@ export const useInvoiceStore = defineStore('invoice', {
 
         const now = new Date()
         this.newInvoice.invoice_date = formatDate(now, dateFormat)
+        this.newInvoice.taxable_supply_date = formatDate(now, 'YYYY-MM-DD')
+        this.newInvoice.payment_method = 'bank_transfer'
 
         if (companySettings.invoice_set_due_date_automatically === 'YES') {
           const dueDate = new Date(now)
@@ -557,6 +569,9 @@ export const useInvoiceStore = defineStore('invoice', {
         if (!isEdit) {
           if (nextNumRes?.data?.nextNumber) {
             this.newInvoice.invoice_number = nextNumRes.data.nextNumber
+            if (!this.newInvoice.variable_symbol) {
+              this.newInvoice.variable_symbol = nextNumRes.data.nextNumber.replace(/[^0-9]/g, '').slice(0, 10) || null
+            }
           }
 
           if (templatesRes?.data?.invoiceTemplates?.length) {

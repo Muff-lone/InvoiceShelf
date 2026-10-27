@@ -420,6 +420,9 @@
                     <h1>@lang($invoice->isCreditNote() ? 'pdf_credit_note_label' : 'pdf_invoice_label')</h1>
                     <h4>{{ $invoice->invoice_number }}</h4>
                     <h4>{{ $invoice->formattedInvoiceDate }}</h4>
+                    @if ($invoice->company?->isVatPayer() ?? true)
+                        <h4>@lang('pdf_taxable_supply_date'): {{ $invoice->formattedTaxableSupplyDate }}</h4>
+                    @endif
                     @include('app.pdf.partials.document-custom-fields-stacked', ['document' => $invoice])
                 </td>
             </tr>
@@ -434,6 +437,7 @@
         <div class="address-container">
             <div class="company-address-container company-address">
                 {!! $company_address !!}
+                @include('app.pdf.partials.company-legal-details')
             </div>
 
             @if ($shipping_address !== '<br />')
@@ -451,6 +455,7 @@
                     <b>@lang('pdf_bill_to')</b> <br>
                     {!! $billing_address !!}
                 @endif
+                @include('app.pdf.partials.customer-legal-details')
             </div>
 
             <div style="clear: both;"></div>

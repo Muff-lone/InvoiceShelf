@@ -38,6 +38,11 @@ class InvoicesRequest extends FormRequest
         return [
             'invoice_date' => 'required',
             'due_date' => 'nullable',
+            'taxable_supply_date' => 'nullable|date',
+            'variable_symbol' => 'nullable|string|max:20',
+            'constant_symbol' => 'nullable|string|max:10',
+            'specific_symbol' => 'nullable|string|max:20',
+            'payment_method' => 'nullable|string|max:100',
             'customer_id' => 'required',
             'invoice_number' => ['required', $this->uniqueNumber()],
             'exchange_rate' => $this->foreignCurrency() ? 'required' : 'nullable',

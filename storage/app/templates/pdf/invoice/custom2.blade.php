@@ -363,6 +363,8 @@
     @endif
 
     @php
+        $isVatPayer = $invoice->company ? (method_exists($invoice->company, 'isVatPayer') ? $invoice->company->isVatPayer() : (bool) ($invoice->company->vat_payer ?? true)) : true;
+        $isCreditNote = method_exists($invoice, 'isCreditNote') && $invoice->isCreditNote();
         $logoSrc = null;
         if ($logo) {
             if (class_exists('\App\Platform\Pdf\Rendering\ImageUtils')) {
@@ -391,11 +393,13 @@
             </td>
             <td width="50%" class="header-title-cell">
                 <div class="invoice-title">
-                    @lang((method_exists($invoice, 'isCreditNote') && $invoice->isCreditNote()) ? 'pdf_credit_note_label' : 'pdf_invoice_label') {{ $invoice->invoice_number }}
+                    @lang($isCreditNote ? 'pdf_credit_note_label' : 'pdf_invoice_label') {{ $invoice->invoice_number }}
                 </div>
-                <div class="invoice-subtitle">
-                    {{ (method_exists($invoice, 'isCreditNote') && $invoice->isCreditNote()) ? __('pdf_credit_note_label') : 'Daňový doklad' }}
-                </div>
+                @if ($isCreditNote || $isVatPayer)
+                    <div class="invoice-subtitle">
+                        {{ $isCreditNote ? ($isVatPayer ? 'Opravný daňový doklad' : __('pdf_credit_note_label')) : 'Daňový doklad' }}
+                    </div>
+                @endif
                 @if (view()->exists('app.pdf.partials.document-custom-fields-stacked'))
                     @include('app.pdf.partials.document-custom-fields-stacked', ['document' => $invoice])
                 @endif
@@ -424,20 +428,29 @@
                     @endif
                 </div>
 
+                @php
+                    $companyIco = $invoice->company?->ico ?: $invoice->company?->tax_id;
+                @endphp
                 <table class="id-table">
-                    @if (!empty($invoice->company?->tax_id))
+                    @if (!empty($companyIco))
                         <tr>
                             <td class="id-label">IČO</td>
-                            <td class="id-value">{{ $invoice->company->tax_id }}</td>
+                            <td class="id-value">{{ $companyIco }}</td>
                         </tr>
                     @endif
-                    @if (!empty($invoice->company?->vat_id))
+                    @if ($isVatPayer && !empty($invoice->company?->vat_id))
                         <tr>
                             <td class="id-label">DIČ</td>
                             <td class="id-value">{{ $invoice->company->vat_id }}</td>
                         </tr>
                     @endif
                 </table>
+                @if (!$isVatPayer)
+                    <div style="font-size: 11px; color: #5E5E5E; margin-top: 6px;">@lang('pdf_not_vat_payer')</div>
+                @endif
+                @if (!empty($invoice->company?->registry_info))
+                    <div style="font-size: 11px; color: #5E5E5E; margin-top: 6px;">{{ $invoice->company->registry_info }}</div>
+                @endif
             </td>
 
             <td width="50%" class="customer-cell">
@@ -491,7 +504,10 @@
                     if (empty($bankAccount) && !empty($invoice->company?->bank_iban)) {
                         $bankAccount = $invoice->company->bank_iban;
                     }
-                    $variableSymbol = preg_replace('/[^0-9]/', '', $invoice->invoice_number);
+                    $variableSymbol = !empty($invoice->variable_symbol)
+                        ? $invoice->variable_symbol
+                        : preg_replace('/[^0-9]/', '', (string) $invoice->invoice_number);
+                    $paymentMethodLabel = $invoice->formattedPaymentMethod ?? ($invoice->payment_method ?: 'Převodem');
                 @endphp
                 <table width="100%" cellspacing="0" cellpadding="0">
                     <tr>
@@ -502,9 +518,21 @@
                         <td class="box-label-white">Variabilní symbol</td>
                         <td class="box-value-white-bold">{{ $variableSymbol ?: $invoice->invoice_number }}</td>
                     </tr>
+                    @if (!empty($invoice->constant_symbol))
+                        <tr>
+                            <td class="box-label-white">Konstantní symbol</td>
+                            <td class="box-value-white">{{ $invoice->constant_symbol }}</td>
+                        </tr>
+                    @endif
+                    @if (!empty($invoice->specific_symbol))
+                        <tr>
+                            <td class="box-label-white">Specifický symbol</td>
+                            <td class="box-value-white">{{ $invoice->specific_symbol }}</td>
+                        </tr>
+                    @endif
                     <tr>
                         <td class="box-label-white">Způsob platby</td>
-                        <td class="box-value-white">Převodem</td>
+                        <td class="box-value-white">{{ $paymentMethodLabel }}</td>
                     </tr>
                     @if (!empty($invoice->company?->bank_iban) && $bankAccount !== $invoice->company->bank_iban)
                         <tr>
@@ -530,10 +558,12 @@
                         <td class="box-label-gray">Datum splatnosti</td>
                         <td class="box-value-gray-bold">{{ $invoice->formattedDueDate }}</td>
                     </tr>
-                    <tr>
-                        <td class="box-label-gray">Datum zdan. plnění</td>
-                        <td class="box-value-gray">{{ $invoice->formattedInvoiceDate }}</td>
-                    </tr>
+                    @if ($isVatPayer || !empty($invoice->taxable_supply_date))
+                        <tr>
+                            <td class="box-label-gray">Datum zdan. plnění</td>
+                            <td class="box-value-gray">{{ $invoice->formattedTaxableSupplyDate ?: $invoice->formattedInvoiceDate }}</td>
+                        </tr>
+                    @endif
                 </table>
             </td>
         </tr>

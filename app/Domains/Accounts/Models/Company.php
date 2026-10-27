@@ -65,6 +65,24 @@ class Company extends Model implements HasMedia
     protected $appends = ['logo', 'logo_path'];
 
     /**
+     * Attribute casts.
+     */
+    protected function casts(): array
+    {
+        return [
+            'vat_payer' => 'boolean',
+        ];
+    }
+
+    /**
+     * Whether this company is registered as a VAT payer.
+     */
+    public function isVatPayer(): bool
+    {
+        return (bool) ($this->vat_payer ?? true);
+    }
+
+    /**
      * A company keeps a single branding image on the public disk.
      */
     public function registerMediaCollections(): void

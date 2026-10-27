@@ -48,6 +48,18 @@
       </BaseInputGroup>
 
       <BaseInputGroup
+        :label="$t('invoices.taxable_supply_date')"
+        :content-loading="isLoading"
+      >
+        <BaseDatePicker
+          v-model="invoiceStore.newInvoice.taxable_supply_date"
+          :content-loading="isLoading"
+          :calendar-button="true"
+          calendar-button-icon="calendar"
+        />
+      </BaseInputGroup>
+
+      <BaseInputGroup
         :label="$t('invoices.invoice_number')"
         :content-loading="isLoading"
         :error="v.invoice_number.$error && v.invoice_number.$errors[0].$message"
@@ -57,6 +69,56 @@
           v-model="invoiceStore.newInvoice.invoice_number"
           :content-loading="isLoading"
           @input="v.invoice_number.$touch()"
+        />
+      </BaseInputGroup>
+
+      <BaseInputGroup
+        :label="$t('invoices.payment_method')"
+        :content-loading="isLoading"
+      >
+        <BaseMultiselect
+          v-model="invoiceStore.newInvoice.payment_method"
+          :options="paymentMethodOptions"
+          value-prop="value"
+          label="label"
+          track-by="label"
+          :content-loading="isLoading"
+          :can-deselect="false"
+          :can-clear="false"
+        />
+      </BaseInputGroup>
+
+      <BaseInputGroup
+        :label="$t('invoices.variable_symbol')"
+        :content-loading="isLoading"
+      >
+        <BaseInput
+          v-model="invoiceStore.newInvoice.variable_symbol"
+          :content-loading="isLoading"
+          type="text"
+        />
+      </BaseInputGroup>
+
+      <BaseInputGroup
+        :label="$t('invoices.constant_symbol')"
+        :content-loading="isLoading"
+      >
+        <BaseInput
+          v-model="invoiceStore.newInvoice.constant_symbol"
+          :content-loading="isLoading"
+          placeholder="0308"
+          type="text"
+        />
+      </BaseInputGroup>
+
+      <BaseInputGroup
+        :label="$t('invoices.specific_symbol')"
+        :content-loading="isLoading"
+      >
+        <BaseInput
+          v-model="invoiceStore.newInvoice.specific_symbol"
+          :content-loading="isLoading"
+          type="text"
         />
       </BaseInputGroup>
 
@@ -83,6 +145,7 @@
 
 <script setup lang="ts">
 import { computed } from 'vue'
+import { useI18n } from 'vue-i18n'
 import { ExchangeRateConverter } from '../../../shared/document-form'
 import { useInvoiceStore } from '../store'
 import RecurringFields from './RecurringFields.vue'
@@ -111,7 +174,15 @@ const props = withDefaults(defineProps<Props>(), {
 })
 
 const invoiceStore = useInvoiceStore()
+const { t } = useI18n()
 const customFieldScope = 'newInvoice'
+
+const paymentMethodOptions = computed(() => [
+  { value: 'bank_transfer', label: t('invoices.payment_methods.bank_transfer') },
+  { value: 'cash', label: t('invoices.payment_methods.cash') },
+  { value: 'card', label: t('invoices.payment_methods.card') },
+  { value: 'cod', label: t('invoices.payment_methods.cod') },
+])
 
 const customFields = useCustomFields({
   store: invoiceStore,

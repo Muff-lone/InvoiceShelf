@@ -83,8 +83,13 @@ export interface Invoice {
   id: number
   invoice_date: string
   due_date: string
+  taxable_supply_date?: string | null
   invoice_number: string
   reference_number: string | null
+  variable_symbol?: string | null
+  constant_symbol?: string | null
+  specific_symbol?: string | null
+  payment_method?: string | null
   type: InvoiceType
   related_invoice_id: number | null
   related_invoice?: RelatedInvoice | null
@@ -127,6 +132,8 @@ export interface Invoice {
   invoice_pdf_url: string
   formatted_invoice_date: string
   formatted_due_date: string
+  formatted_taxable_supply_date?: string | null
+  formatted_payment_method?: string | null
   allow_edit: boolean
   payment_module_enabled: boolean
   sales_tax_type: string | null
@@ -145,8 +152,13 @@ export interface Invoice {
 export interface CreateInvoicePayload {
   invoice_date: string
   due_date: string
+  taxable_supply_date?: string | null
   invoice_number: string
   reference_number?: string | null
+  variable_symbol?: string | null
+  constant_symbol?: string | null
+  specific_symbol?: string | null
+  payment_method?: string | null
   customer_id: number
   template_name?: string | null
   notes?: string | null

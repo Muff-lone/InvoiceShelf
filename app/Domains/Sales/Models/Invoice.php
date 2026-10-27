@@ -122,6 +122,7 @@ class Invoice extends Model implements HasMedia
         'deleted_at',
         'invoice_date',
         'due_date',
+        'taxable_supply_date',
     ];
 
     /**
@@ -133,6 +134,8 @@ class Invoice extends Model implements HasMedia
         'formattedCreatedAt',
         'formattedInvoiceDate',
         'formattedDueDate',
+        'formattedTaxableSupplyDate',
+        'formattedPaymentMethod',
         'formattedDueAmount',
         'invoicePdfUrl',
     ];
@@ -155,6 +158,28 @@ class Invoice extends Model implements HasMedia
             'discount_val' => 'integer',
             'exchange_rate' => 'float',
         ];
+    }
+
+    /**
+     * Populate default Czech accounting attributes when creating an invoice if
+     * the caller omitted them.
+     */
+    protected static function booted(): void
+    {
+        static::creating(function (Invoice $invoice) {
+            if (empty($invoice->taxable_supply_date) && ! empty($invoice->invoice_date)) {
+                $invoice->taxable_supply_date = Carbon::parse($invoice->invoice_date)->format('Y-m-d');
+            }
+
+            if (($invoice->variable_symbol === null || $invoice->variable_symbol === '') && ! empty($invoice->invoice_number)) {
+                $digits = preg_replace('/[^0-9]/', '', (string) $invoice->invoice_number);
+                $invoice->variable_symbol = $digits !== '' ? substr($digits, 0, 10) : null;
+            }
+
+            if (empty($invoice->payment_method)) {
+                $invoice->payment_method = 'bank_transfer';
+            }
+        });
     }
 
     /*
@@ -422,6 +447,39 @@ class Invoice extends Model implements HasMedia
         }
 
         return Carbon::parse($this->invoice_date)->translatedFormat($format);
+    }
+
+    /**
+     * Taxable supply date (DUZP) in the company's configured date format,
+     * falling back to the issue date when not explicitly set.
+     *
+     * @param  mixed  $value
+     */
+    public function getFormattedTaxableSupplyDateAttribute($value)
+    {
+        $date = $this->taxable_supply_date ?: $this->invoice_date;
+
+        if (! $date) {
+            return null;
+        }
+
+        return Carbon::parse($date)->translatedFormat($this->documentDateFormat());
+    }
+
+    /**
+     * Human-readable payment method label for PDFs and emails.
+     *
+     * @param  mixed  $value
+     */
+    public function getFormattedPaymentMethodAttribute($value)
+    {
+        return match ($this->payment_method) {
+            'bank_transfer', null, '' => __('pdf_payment_method_bank_transfer'),
+            'cash' => __('pdf_payment_method_cash'),
+            'card' => __('pdf_payment_method_card'),
+            'cod' => __('pdf_payment_method_cod'),
+            default => (string) $this->payment_method,
+        };
     }
 
     /*
@@ -711,8 +769,13 @@ class Invoice extends Model implements HasMedia
         return [
             '{INVOICE_DATE}' => $this->formattedInvoiceDate,
             '{INVOICE_DUE_DATE}' => $this->formattedDueDate,
+            '{INVOICE_TAXABLE_SUPPLY_DATE}' => $this->formattedTaxableSupplyDate,
             '{INVOICE_NUMBER}' => $this->invoice_number,
             '{INVOICE_REF_NUMBER}' => $this->reference_number,
+            '{INVOICE_VARIABLE_SYMBOL}' => $this->variable_symbol ?: preg_replace('/[^0-9]/', '', (string) $this->invoice_number),
+            '{INVOICE_CONSTANT_SYMBOL}' => (string) $this->constant_symbol,
+            '{INVOICE_SPECIFIC_SYMBOL}' => (string) $this->specific_symbol,
+            '{INVOICE_PAYMENT_METHOD}' => $this->formattedPaymentMethod,
         ];
     }
 

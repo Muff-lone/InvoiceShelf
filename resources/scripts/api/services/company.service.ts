@@ -6,8 +6,11 @@ import type { CompanyMailConfig, MailConfig, TestMailPayload } from '@/scripts/t
 
 export interface UpdateCompanyPayload {
   name: string
+  ico?: string | null
   vat_id?: string | null
   tax_id?: string | null
+  vat_payer?: boolean
+  registry_info?: string | null
   bank_name?: string | null
   bank_account_holder?: string | null
   bank_iban?: string | null

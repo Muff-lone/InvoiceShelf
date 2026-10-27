@@ -6,8 +6,18 @@ import type { User } from './user'
 export interface Company {
   id: number
   name: string
+  ico?: string | null
   vat_id: string | null
   tax_id: string | null
+  vat_payer?: boolean
+  registry_info?: string | null
+  bank_name?: string | null
+  bank_account_holder?: string | null
+  bank_iban?: string | null
+  bank_bic?: string | null
+  bank_account_prefix?: string | null
+  bank_account_number?: string | null
+  bank_code?: string | null
   logo: string | null
   logo_path: string | null
   unique_hash: string
