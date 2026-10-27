@@ -60,6 +60,7 @@ FROM base AS production
     # and the step still works without it for local builds.
     RUN --mount=type=secret,id=composer_auth,mode=0444 \
         COMPOSER_AUTH="$(cat /run/secrets/composer_auth 2>/dev/null || true)" \
+        COMPOSER_MEMORY_LIMIT=-1 \
         composer install --prefer-dist --no-dev --optimize-autoloader
 
     # Copy entrypoint and inject script, and make sure they are executable
